@@ -9,6 +9,7 @@ License:        GPLv2+
 URL:            http://jmeshlib.sourceforge.net/
 Source0:        http://downloads.sourceforge.net/%{name}/%{origname}-%{version}.zip
 Patch0:         libjmesh-compile-fixes.patch
+BuildRequires:  git-core
 BuildRequires:  make
 BuildRequires:  gcc-c++
 
