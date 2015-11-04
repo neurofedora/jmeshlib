@@ -1,0 +1,170 @@
+diff --git a/makeconf b/makeconf
+index 886f709..1e22ca2 100644
+--- a/makeconf
++++ b/makeconf
+@@ -8,6 +8,7 @@ RMDIR= rmdir
+ MV= mv
+ MKDIR= mkdir
+ TAR= tar
++LN= ln
+ 
+ WARNLEVEL= -Wall
+ 
+@@ -24,5 +25,5 @@ STRICTALIAS= -fno-strict-aliasing
+ # On 64-bit machines you need to uncomment the following line
+ # -DIS64BITPLATFORM
+ 
+-MOREFLAGS = $(OPTM) $(STRICTALIAS)
+-
++CFLAGS ?= -Wall -O2
++LDFLAGS ?= 
+diff --git a/src/JMESH/Makefile b/src/JMESH/Makefile
+index c8abeab..46c65ea 100644
+--- a/src/JMESH/Makefile
++++ b/src/JMESH/Makefile
+@@ -2,7 +2,7 @@ include ../../makeconf
+ 
+ INCPATH = -I../../include
+ 
+-CFLAGS = $(MOREFLAGS) $(WARNLEVEL) -pedantic $(INCPATH)
++CURCFLAGS = $(CFLAGS) -pedantic $(INCPATH)
+ 
+ SOURCES.C    =  jmesh.cpp
+ 
+@@ -12,14 +12,14 @@ OBJECTS.O    =  $(SOURCES.C:.cpp=.o)
+ 	$(LD) -r -o ../OBJECTS/jmesh.o $(OBJECTS.O)
+ 
+ depend:
+-	makedepend -- $(CFLAGS) -- $(SOURCES.C)
++	makedepend -- $(CURCFLAGS) -- $(SOURCES.C)
+ 	$(RM) -f Makefile.bak
+ 
+ clean :
+ 	$(RM) -f *.o ../OBJECTS/jmesh.o
+ 
+ .cpp.o:
+-	$(CXX) $(CFLAGS) -c -o $@ $<
++	$(CXX) $(CURCFLAGS) -c -o $@ $< -fPIC
+ 
+ # DO NOT DELETE
+ 
+diff --git a/src/JMESH/jmesh.cpp b/src/JMESH/jmesh.cpp
+index f949542..41bd2a5 100644
+--- a/src/JMESH/jmesh.cpp
++++ b/src/JMESH/jmesh.cpp
+@@ -78,7 +78,7 @@ void JMesh::error(const char *msg, ...)
+   display_message(fms, DISPMSG_ACTION_ERRORDIALOG);
+  else
+  {
+-  fprintf(stderr,fms);
++  fprintf(stderr,"%s",fms);
+   exit(-1);
+  }
+ }
+@@ -98,7 +98,7 @@ void JMesh::warning(const char *msg, ...)
+  if (display_message != NULL) 
+   display_message(fms, DISPMSG_ACTION_PUTMESSAGE);
+  else
+-  fprintf(stderr,fms);
++  fprintf(stderr,"%s",fms);
+ 
+  va_end(ap);
+ }
+@@ -118,7 +118,7 @@ void JMesh::info(const char *msg, ...)
+  if (display_message != NULL) 
+   display_message(fms, DISPMSG_ACTION_PUTMESSAGE);
+  else
+-  printf(fms);
++  printf("%s",fms);
+ 
+  va_end(ap);
+ }
+diff --git a/src/MESH_STRUCTURE/Makefile b/src/MESH_STRUCTURE/Makefile
+index ee1a3bd..d9b3b82 100644
+--- a/src/MESH_STRUCTURE/Makefile
++++ b/src/MESH_STRUCTURE/Makefile
+@@ -1,7 +1,7 @@
+ include ../../makeconf
+ 
+ INCPATH = -I../../include
+-CFLAGS = $(MOREFLAGS) $(WARNLEVEL) -pedantic $(INCPATH) -I../RANGECODER
++CURCFLAGS = $(CFLAGS) -pedantic $(INCPATH) -I../RANGECODER
+ 
+ SOURCES.C    =  point.cpp\
+ 		vertex.cpp\
+@@ -17,14 +17,14 @@ OBJECTS.O    =  $(SOURCES.C:.cpp=.o)
+ 	$(LD) -r -o ../OBJECTS/mesh_structure.o $(OBJECTS.O)
+ 
+ depend:
+-	makedepend -- $(CFLAGS) -- $(SOURCES.C)
++	makedepend -- $(CURCFLAGS) -- $(SOURCES.C)
+ 	$(RM) -f Makefile.bak
+ 
+ clean :
+ 	$(RM) -f *.o ../OBJECTS/mesh_structure.o
+ 
+ .cpp.o:
+-	$(CXX) $(CFLAGS) -c -o $@ $<
++	$(CXX) $(CURCFLAGS) -c -o $@ $< -fPIC
+ 
+ # DO NOT DELETE
+ 
+diff --git a/src/Makefile b/src/Makefile
+index 6d6813e..19ef3cb 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -17,7 +17,8 @@ OBJECTS = $(PRIMITIVES) $(MESH_STRUCT) $(JMESH)
+ #-------------------- RULES --------------------------------------
+ 
+ lib: $(OBJECTS)
+-	$(AR) -rs ../lib/libjmesh.a $(OBJECTS)
++	$(CXX) $(CFLAGS) -shared -Wl,-soname,libjmesh.so.0 $(OBJECTS) -o libjmesh.so.0 $(LDFLAGS)
++	$(LN) -s libjmesh.so.0 libjmesh.so
+ 	$(RM) -f $(OBJECTS)
+ 
+ depend:
+diff --git a/src/PRIMITIVES/Makefile b/src/PRIMITIVES/Makefile
+index ae92a0d..39246f7 100644
+--- a/src/PRIMITIVES/Makefile
++++ b/src/PRIMITIVES/Makefile
+@@ -1,7 +1,7 @@
+ include ../../makeconf
+ 
+ INCPATH = -I../../include -I../THIRD_PARTY
+-CFLAGS = $(MOREFLAGS) $(WARNLEVEL) -pedantic $(INCPATH)
++CURCFLAGS = $(CFLAGS) -pedantic $(INCPATH)
+ 
+ SOURCES.C    =  binTree.cpp\
+ 		dijkstraGraph.cpp\
+@@ -18,14 +18,14 @@ OBJECTS.O    =  $(SOURCES.C:.cpp=.o)
+ 	$(LD) -r -o ../OBJECTS/primitives.o $(OBJECTS.O)
+ 
+ depend:
+-	makedepend -- $(CFLAGS) -- $(SOURCES.C)
++	makedepend -- $(CURCFLAGS) -- $(SOURCES.C)
+ 	$(RM) -f Makefile.bak
+ 
+ clean :
+ 	$(RM) -f *.o ../OBJECTS/primitives.o
+ 
+ .cpp.o:
+-	$(CXX) $(CFLAGS) -c -o $@ $<
++	$(CXX) $(CURCFLAGS) -c -o $@ $< -fPIC
+ 
+ # DO NOT DELETE
+ 
+diff --git a/test/Makefile b/test/Makefile
+index 3b79ba3..e3ce9db 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -1,8 +1,8 @@
+ CFLAGS = -Wall -I../include
+-LIBS = -L../lib -ljmesh
++LIBS = -L../src -ljmesh
+ 
+ test: test.o
+-	g++ -o test test.o $(LIBS)
++	$(CXX) -o test test.o $(LIBS)
+ 
+ 
+ #-------------------------------------------------------------------------
