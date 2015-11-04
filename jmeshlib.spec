@@ -45,6 +45,10 @@ ln -s libjmesh.so.0 %{buildroot}%{_libdir}/libjmesh.so
 install -p -m0644 include/*.h %{buildroot}%{_includedir}/%{name}
 install -p -m0755 test/test %{buildroot}%{_bindir}/%{name}
 
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
 %files
 %license gpl.txt
 %{_bindir}/%{name}
