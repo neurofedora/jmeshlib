@@ -110,15 +110,16 @@ index ee1a3bd..d9b3b82 100644
  # DO NOT DELETE
  
 diff --git a/src/Makefile b/src/Makefile
-index 6d6813e..19ef3cb 100644
+index 6d6813e..5585058 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -17,7 +17,8 @@ OBJECTS = $(PRIMITIVES) $(MESH_STRUCT) $(JMESH)
+@@ -17,7 +17,9 @@ OBJECTS = $(PRIMITIVES) $(MESH_STRUCT) $(JMESH)
  #-------------------- RULES --------------------------------------
  
  lib: $(OBJECTS)
 -	$(AR) -rs ../lib/libjmesh.a $(OBJECTS)
-+	$(CXX) $(CFLAGS) -shared -Wl,-soname,libjmesh.so.0 $(OBJECTS) -o libjmesh.so.0 $(LDFLAGS)
++	$(CXX) $(CFLAGS) -shared -Wl,-soname,libjmesh.so.0.0 $(OBJECTS) -o libjmesh.so.0.0 $(LDFLAGS)
++	$(LN) -s libjmesh.so.0.0 libjmesh.so.0
 +	$(LN) -s libjmesh.so.0 libjmesh.so
  	$(RM) -f $(OBJECTS)
  

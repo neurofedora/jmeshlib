@@ -40,7 +40,8 @@ export LDFLAGS="%{__global_ldflags}"
 
 %install
 mkdir -p %{buildroot}%{_bindir} %{buildroot}%{_libdir} %{buildroot}%{_includedir}/%{name}
-install -p -m0755 src/libjmesh.so.0 %{buildroot}%{_libdir}
+install -p -m0755 src/libjmesh.so.0.0 %{buildroot}%{_libdir}
+ln -s libjmesh.so.0.0 %{buildroot}%{_libdir}/libjmesh.so.0
 ln -s libjmesh.so.0 %{buildroot}%{_libdir}/libjmesh.so
 install -p -m0644 include/*.h %{buildroot}%{_includedir}/%{name}
 install -p -m0755 test/test %{buildroot}%{_bindir}/%{name}
@@ -52,7 +53,7 @@ install -p -m0755 test/test %{buildroot}%{_bindir}/%{name}
 %files
 %license gpl.txt
 %{_bindir}/%{name}
-%{_libdir}/libjmesh.so.0
+%{_libdir}/libjmesh.so.*
 
 %files devel
 %{_includedir}/%{name}/
